@@ -7,5 +7,18 @@ export default defineNuxtConfig({
   ],
    srcDir: 'src/',
    css: ['~/assets/css/main.css'],
+
+   app: {
+    head: {
+      title: 'My Store',
+      link: [
+        {
+          rel: 'icon',
+          type: 'image/png',
+          href: '/store.png',
+        },
+      ],
+    },
+  },
    
 })

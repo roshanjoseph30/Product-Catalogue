@@ -51,6 +51,11 @@ const cartStore = useCartStore()
           </button>
         </article>
       </div>
+      <div class="checkout">
+        <button v-if="cartStore.items.length != 0" class="checkout-button" @click="cartStore.checkout()">
+          Checkout
+        </button>
+      </div>
     </aside>
   </Teleport>
 </template>
@@ -113,6 +118,19 @@ const cartStore = useCartStore()
   border-radius: 20px;
   border: none;
   cursor: pointer;
+}
+.checkout-button {
+  margin-top: 20px;
+  background: black;
+  color: white;
+  width: 100%;
+  padding: 10px 10px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+}
+.checkout-button:hover {
+  background: #333;
 }
 
 </style>

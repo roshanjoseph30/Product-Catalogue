@@ -9,7 +9,7 @@ const cartStore = useCartStore()
     <h1>Shopping Cart</h1>
 
     <div v-if="cartStore.items.length === 0" class="empty-cart">
-      <p>Your cart is empty.</p>
+      <h3 >Your cart is empty.</h3>
 
       <NuxtLink to="/">
         Continue Shopping
@@ -61,10 +61,16 @@ const cartStore = useCartStore()
         <p>
           Total price: ${{ cartStore.totalPrice.toFixed(2) }}
         </p>
-
-        <NuxtLink to="/">
-          Continue Shopping
-        </NuxtLink>
+        <div class="checkout">
+            <button class="continue-shopping-button">
+                <NuxtLink to="/">
+                Continue Shopping
+                </NuxtLink>
+            </button>
+        <button class="checkout-button" @click="cartStore.checkout()">
+          Checkout
+        </button>
+        </div>
       </aside>
     </div>
   </main>
@@ -88,10 +94,9 @@ const cartStore = useCartStore()
 }
 
 .cart-content {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 40px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .cart-items {
@@ -138,11 +143,47 @@ const cartStore = useCartStore()
 }
 
 .cart-summary {
-  padding: 25px;
-  border-radius: 16px;
-  background: #f5f0e5;
+
+    padding: 25px;
+    border-radius: 16px;
+    background: #f5f0e5;
 }
 
+.checkout {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+}
+.continue-shopping-button a {
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+}
+.continue-shopping-button {
+    background: black;
+  color: white;
+  padding: 10px 10px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+
+}
+.checkout-button {
+  background: black;
+  color: white;
+  padding: 10px 10px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
 .cart-summary h2 {
   margin-bottom: 20px;
 }

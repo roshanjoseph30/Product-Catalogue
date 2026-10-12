@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useCartStore } from '~/stores/cart'
+
+const cartStore = useCartStore()
 import userLogo from '~/assets/images/user.png'
 import cart from '~/assets/images/cart.png'
 
@@ -18,56 +21,67 @@ interface Category {
 
 const searchQuery = ref('')
 const selectedCategory = ref('')
+const productStore = useProductStore()
 
-const categories = ref<Category[]>([])
-const products = ref<Product[]>([])
+const categories = computed(() => productStore.categories)
+const products = computed(() => productStore.products)
+
+const loading = computed(() => productStore.loading)
+const error = computed(() => productStore.error)
 
 const currentIndex = ref(0)
 
 let carouselInterval: ReturnType<typeof setInterval> | undefined
 
-const fetchCategories = async () => {
-  try {
-    const [categoryResponse, productResponse] = await Promise.all([
-      fetch('https://dummyjson.com/products/categories'),
-      fetch('https://dummyjson.com/products?limit=100')
-    ])
-
-    if (!categoryResponse.ok || !productResponse.ok) {
-      throw new Error('Failed to fetch data')
-    }
-
-    categories.value = await categoryResponse.json()
-
-    const productData = await productResponse.json()
-    products.value = productData.products
-  } catch (error) {
-    console.error('Error fetching categories and products:', error)
-  }
-}
+const featuredProducts = computed(() => {
+  return products.value.slice(95, 100)
+})
 
 const nextSlide = () => {
-  if (!products.value.length) return
+  if (!featuredProducts.value.length) return
 
   currentIndex.value =
-    (currentIndex.value + 1) % products.value.length
+    (currentIndex.value + 1) % featuredProducts.value.length
 }
 
 const previousSlide = () => {
-  if (!products.value.length) return
+  if (!featuredProducts.value.length) return
 
   currentIndex.value =
-    (currentIndex.value - 1 + products.value.length) %
-    products.value.length
+    (currentIndex.value - 1 + featuredProducts.value.length) %
+    featuredProducts.value.length
 }
 
 
 const startCarousel = () => {
   carouselInterval = setInterval(nextSlide, 3000)
 }
+const filteredProducts = computed(() => {
+  let result = products.value
+
+  // Filter products by search text
+  if (searchQuery.value.trim()) {
+    result = result.filter(product =>
+      product.title
+        .toLowerCase()
+        .includes(searchQuery.value.trim().toLowerCase())
+    )
+  }
+
+  return result
+})
+watch(selectedCategory, (newCategory) => {
+  if (newCategory) {
+    navigateTo(`/categories/${newCategory}`)
+  }
+})
 
 onMounted(async () => {
-  await fetchCategories()
+  await Promise.all([
+    productStore.fetchProducts(),
+    productStore.fetchCategories()
+  ])
+
   startCarousel()
 })
 
@@ -82,7 +96,9 @@ onUnmounted(() => {
   <main>
     
     <header class="header">
-      <h1>Store</h1>
+      <a href="/">
+        <h1>Store</h1>
+      </a>
 
       <div class="user-cart">
         <img :src="userLogo" alt="User" class="logo">
@@ -93,6 +109,13 @@ onUnmounted(() => {
           aria-label="View shopping cart"
         >
           <img :src="cart" alt="cartlogo" class="cart-logo">
+          
+          <span
+                v-if="cartStore.totalItems > 0"
+                class="cart-count"
+                >
+                {{ cartStore.totalItems }}
+          </span>
         </NuxtLink>
       </div>
     </header>
@@ -109,16 +132,28 @@ onUnmounted(() => {
       </button>
 
       <div class="carousel-content">
-        <template v-if="products.length">
-          <img
-            :src="products[currentIndex].thumbnail"
-            :alt="products[currentIndex].title"
-            class="carousel-image"
-          >
+        <span class="featured-badge">Featured</span>
+        <template v-if="featuredProducts.length">
+          <div class="carousel-image-wrapper">
+            <img
+              :src="featuredProducts[currentIndex].thumbnail"
+              :alt="featuredProducts[currentIndex].title"
+              class="carousel-image"
+            >
+          </div>
 
           <div class="carousel-details">
-            <h2>{{ products[currentIndex].title }}</h2>
-            <p>{{ products[currentIndex].category }}</p>
+            <h2>{{ featuredProducts[currentIndex].title }}</h2>
+            <p>{{ featuredProducts[currentIndex].category }}</p>
+            
+            <NuxtLink
+            :to="`/products/${featuredProducts[currentIndex].id}`"
+            class="view-details-button"
+            >
+            <button class="view-details-button">
+              View Details
+            </button>
+          </NuxtLink>
           </div>
         </template>
 
@@ -163,6 +198,24 @@ onUnmounted(() => {
         </select>
       </label>
     </section>
+    <section v-if="searchQuery.trim()" class="search-results">
+      <h2>Search Results</h2>
+
+      <div v-if="filteredProducts.length" class="products">
+        <NuxtLink
+          v-for="product in filteredProducts"
+          :key="product.id"
+          :to="`/products/${product.id}`"
+          class="product-card"
+        >
+          <img :src="product.thumbnail" :alt="product.title">
+          <h3>{{ product.title }}</h3>
+          <p>{{ product.category }}</p>
+        </NuxtLink>
+      </div>
+
+      <p v-else>No products found.</p>
+    </section>
 
     
     <section class="category-section">
@@ -185,6 +238,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -194,7 +248,15 @@ onUnmounted(() => {
 }
 
 .header h1 {
+  margin: 0;
+  color: black;
   font-size: 80px;
+  text-decoration: none;
+}
+
+.header a {
+  text-decoration: none;
+  color: inherit;
 }
 
 .header h2 {
@@ -211,6 +273,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 30px;
+  margin-right: 20px;
   padding: 20px;
 }
 
@@ -230,6 +293,15 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+.cart-count {
+    position: fixed;
+    top: 50px;
+    right:70px;
+    background-color: black;
+    color: white;
+    border-radius: 50%;
+    padding: 5px 10px;
 }
 
 .carousel {
@@ -260,6 +332,27 @@ onUnmounted(() => {
   animation: fade-in 0.4s ease;
 }
 
+.carousel-image-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.featured-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background-color: #333;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 .carousel-details {
   max-width: 350px;
 }
@@ -286,7 +379,16 @@ onUnmounted(() => {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
   transition: background-color 0.3s ease;
 }
-
+.view-details-button {
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
 .carousel-button:hover {
   background-color: #e0e0e0;
 }
@@ -367,6 +469,12 @@ onUnmounted(() => {
     opacity: 1;
   }
 }
+
+.product-card {
+  color: black;
+  text-decoration: none;
+}
+
 
 @media (max-width: 425px) {
   .header {
