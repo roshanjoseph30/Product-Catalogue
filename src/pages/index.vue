@@ -1,0 +1,419 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import userLogo from '~/assets/images/user.png'
+import cart from '~/assets/images/cart.png'
+
+interface Product {
+  id: number
+  title: string
+  category: string
+  thumbnail: string
+}
+
+interface Category {
+  slug: string
+  name: string
+  url: string
+}
+
+const searchQuery = ref('')
+const selectedCategory = ref('')
+
+const categories = ref<Category[]>([])
+const products = ref<Product[]>([])
+
+const currentIndex = ref(0)
+
+let carouselInterval: ReturnType<typeof setInterval> | undefined
+
+const fetchCategories = async () => {
+  try {
+    const [categoryResponse, productResponse] = await Promise.all([
+      fetch('https://dummyjson.com/products/categories'),
+      fetch('https://dummyjson.com/products?limit=100')
+    ])
+
+    if (!categoryResponse.ok || !productResponse.ok) {
+      throw new Error('Failed to fetch data')
+    }
+
+    categories.value = await categoryResponse.json()
+
+    const productData = await productResponse.json()
+    products.value = productData.products
+  } catch (error) {
+    console.error('Error fetching categories and products:', error)
+  }
+}
+
+const nextSlide = () => {
+  if (!products.value.length) return
+
+  currentIndex.value =
+    (currentIndex.value + 1) % products.value.length
+}
+
+const previousSlide = () => {
+  if (!products.value.length) return
+
+  currentIndex.value =
+    (currentIndex.value - 1 + products.value.length) %
+    products.value.length
+}
+
+
+const startCarousel = () => {
+  carouselInterval = setInterval(nextSlide, 3000)
+}
+
+onMounted(async () => {
+  await fetchCategories()
+  startCarousel()
+})
+
+onUnmounted(() => {
+  if (carouselInterval) {
+    clearInterval(carouselInterval)
+  }
+})
+</script>
+
+<template>
+  <main>
+    
+    <header class="header">
+      <h1>Store</h1>
+
+      <div class="user-cart">
+        <img :src="userLogo" alt="User" class="logo">
+
+        <NuxtLink
+          to="/cart"
+          class="cart-button"
+          aria-label="View shopping cart"
+        >
+          <img :src="cart" alt="cartlogo" class="cart-logo">
+        </NuxtLink>
+      </div>
+    </header>
+
+    
+    <section class="carousel" aria-label="Featured products">
+      <button
+        class="carousel-button previous"
+        type="button"
+        aria-label="Previous product"
+        @click="previousSlide"
+      >
+        &#10094;
+      </button>
+
+      <div class="carousel-content">
+        <template v-if="products.length">
+          <img
+            :src="products[currentIndex].thumbnail"
+            :alt="products[currentIndex].title"
+            class="carousel-image"
+          >
+
+          <div class="carousel-details">
+            <h2>{{ products[currentIndex].title }}</h2>
+            <p>{{ products[currentIndex].category }}</p>
+          </div>
+        </template>
+
+        <p v-else>Loading products...</p>
+      </div>
+
+      <button
+        class="carousel-button next"
+        type="button"
+        aria-label="Next product"
+        @click="nextSlide"
+      >
+        &#10095;
+      </button>
+    </section>
+
+    <section class="filters" aria-label="Product search and filters">
+      <label class="search-box">
+        <input
+          v-model="searchQuery"
+          type="search"
+          placeholder="Search products"
+          aria-label="Search products"
+        >
+      </label>
+
+      <label class="category-filter">
+        <select
+          v-model="selectedCategory"
+          class="category-select"
+          aria-label="Filter by category"
+        >
+          <option value="">All Categories</option>
+
+          <option
+            v-for="category in categories"
+            :key="category.slug"
+            :value="category.slug"
+          >
+            {{ category.name }}
+          </option>
+        </select>
+      </label>
+    </section>
+
+    
+    <section class="category-section">
+      <div class="header">
+        <h2>Categories</h2>
+      </div>
+
+      <div class="categories">
+        <NuxtLink
+          v-for="category in categories"
+          :key="category.slug"
+          :to="`/categories/${category.slug}`"
+          class="category-card"
+        >
+          {{ category.name }}
+        </NuxtLink>
+      </div>
+    </section>
+  </main>
+</template>
+
+<style scoped>
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 80px;
+}
+
+.header h2 {
+  font-size: 30px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.user-cart {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 20px;
+}
+
+.cart-button {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+}
+
+.cart-button:hover {
+  cursor: pointer;
+}
+
+.cart-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  min-height: 350px;
+  margin-bottom: 50px;
+  padding: 30px;
+  border-radius: 20px;
+  background-color: #f5f0e5;
+}
+
+.carousel-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  width: 100%;
+}
+
+.carousel-image {
+  width: 250px;
+  height: 250px;
+  object-fit: contain;
+  animation: fade-in 0.4s ease;
+}
+
+.carousel-details {
+  max-width: 350px;
+}
+
+.carousel-details h2 {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.carousel-details p {
+  color: #575757;
+  text-transform: capitalize;
+}
+
+.carousel-button {
+  flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+  border: none;
+  border-radius: 50%;
+  background-color: white;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease;
+}
+
+.carousel-button:hover {
+  background-color: #e0e0e0;
+}
+
+.filters {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 50px;
+}
+
+.search-box,
+.category-filter {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-box input,
+.category-select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  font-size: 16px;
+  color: #333;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.search-box input:focus,
+.category-select:focus {
+  outline: 2px solid #777;
+  outline-offset: 2px;
+}
+
+.category-section {
+  margin-bottom: 50px;
+}
+
+.categories {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.category-card {
+  display: block;
+  padding: 18px 12px;
+  background-color: rgba(181, 175, 175, 0.24);
+  border-radius: 30px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  text-transform: capitalize;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.category-card:hover {
+  background-color: rgba(181, 175, 175, 0.5);
+  transform: translateY(-3px);
+  color: #000;
+}
+
+.category-card:visited {
+  color: #333;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 425px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header h1 {
+    font-size: 40px;
+  }
+
+  .header h2 {
+    font-size: 20px;
+  }
+
+  .logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  .categories {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .carousel {
+    padding: 20px 10px;
+  }
+
+  .carousel-content {
+    flex-direction: column;
+  }
+
+  .carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 35px;
+    height: 35px;
+    z-index: 1;
+  }
+
+  .carousel-button.previous {
+    left: 10px;
+  }
+
+  .carousel-button.next {
+    right: 10px;
+  }
+}
+</style>
