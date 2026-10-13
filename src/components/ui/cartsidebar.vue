@@ -44,17 +44,50 @@ const cartStore = useCartStore()
           <img :src="item.product.thumbnail" :alt="item.product.title">
 
           <h3>{{ item.product.title }}</h3>
-          <p>Quantity: {{ item.quantity }}</p>
+
+          <p class="product-price">
+            Price: ${{ item.product.price.toFixed(2) }}
+          </p>
+
+          <div class="quantity-control">
+            <button
+              type="button"
+              @click="cartStore.decreaseQuantity(item.product.id)"
+              :disabled="item.quantity <= 1"
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+
+            <span>{{ item.quantity }}</span>
+
+            <button
+              type="button"
+              @click="cartStore.increaseQuantity(item.product.id)"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+          </div>
 
           <button class="removebutton" @click="cartStore.removeFromCart(item.product.id)">
             Remove
           </button>
         </article>
       </div>
+      <div v-if="cartStore.items.length > 0" class="cart-total">
+        <h3>Total Price:</h3>
+        <h3>${{ cartStore.totalPrice.toFixed(2) }}</h3>
+      </div>
       <div class="checkout">
-        <button v-if="cartStore.items.length != 0" class="checkout-button" @click="cartStore.checkout()">
+        <NuxtLink
+          v-if="cartStore.items.length > 0"
+          to="/checkout"
+          class="checkout-button"
+          @click="emit('close')"
+        >
           Checkout
-        </button>
+        </NuxtLink>
       </div>
     </aside>
   </Teleport>
@@ -112,25 +145,71 @@ const cartStore = useCartStore()
     cursor: pointer;
 }
 .removebutton {
-  background: black;
+  background: rgb(21, 21, 21);
   color: white;
-  padding: 10px 10px;
-  border-radius: 20px;
-  border: none;
-  cursor: pointer;
-}
-.checkout-button {
-  margin-top: 20px;
-  background: black;
-  color: white;
+  font-weight: 600;
   width: 100%;
-  padding: 10px 10px;
+  padding: 5px 5px;
   border-radius: 20px;
   border: none;
   cursor: pointer;
+  text-align: center;
 }
+.checkout {
+  margin-top: 20px;
+  flex-shrink: 0;
+}
+
+.checkout-button {
+  display: block;
+  width: 100%;
+  padding: 12px 10px;
+  box-sizing: border-box;
+  background: black;
+  border-radius: 20px;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
 .checkout-button:hover {
   background: #333;
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 15px;
+  padding: 15px 0;
+  border-top: 1px solid #ddd;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.quantity-control button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: black;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.quantity-control button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 </style>

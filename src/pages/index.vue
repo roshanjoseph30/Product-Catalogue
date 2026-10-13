@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useCartStore } from '~/stores/cart'
+import { useDebounce } from '~/composables/useDebounce'
 
 const cartStore = useCartStore()
 import userLogo from '~/assets/images/user.png'
@@ -20,6 +21,7 @@ interface Category {
 }
 
 const searchQuery = ref('')
+const debouncedSearchQuery = useDebounce(searchQuery, 500)
 const selectedCategory = ref('')
 const productStore = useProductStore()
 
@@ -60,11 +62,11 @@ const filteredProducts = computed(() => {
   let result = products.value
 
   // Filter products by search text
-  if (searchQuery.value.trim()) {
+  if (debouncedSearchQuery.value.trim()) {
     result = result.filter(product =>
       product.title
         .toLowerCase()
-        .includes(searchQuery.value.trim().toLowerCase())
+        .includes(debouncedSearchQuery.value.trim().toLowerCase())
     )
   }
 
@@ -290,18 +292,18 @@ onUnmounted(() => {
 }
 
 .cart-button img {
-  width: 100%;
-  height: 100%;
+  width: 90%;
+  height: 90%;
   object-fit: contain;
 }
 .cart-count {
-    position: fixed;
-    top: 50px;
-    right:70px;
-    background-color: black;
-    color: white;
-    border-radius: 50%;
-    padding: 5px 10px;
+  position: absolute;
+  top: 60px;
+  right:70px;
+  background-color: black;
+  color: white;
+  border-radius: 50%;
+  padding: 5px 10px;
 }
 
 .carousel {
@@ -316,27 +318,51 @@ onUnmounted(() => {
   border-radius: 20px;
   background-color: #f5f0e5;
 }
-
 .carousel-content {
-  display: flex;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 350px);
   align-items: center;
   justify-content: center;
   gap: 40px;
   width: 100%;
+  min-height: 300px;
+}
+
+.carousel-image-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px;
+  height: 250px;
 }
 
 .carousel-image {
-  width: 250px;
-  height: 250px;
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   animation: fade-in 0.4s ease;
 }
 
-.carousel-image-wrapper {
-  position: relative;
+.carousel-details {
+  width: 100%;
+  max-width: 350px;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.carousel-details h2 {
+  font-size: 24px;
+  margin: 0 0 12px;
+  min-height: 58px;
+}
+
+.carousel-details p {
+  color: #575757;
+  text-transform: capitalize;
+  margin: 0 0 16px;
 }
 
 .featured-badge {
@@ -352,19 +378,6 @@ onUnmounted(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-}
-.carousel-details {
-  max-width: 350px;
-}
-
-.carousel-details h2 {
-  font-size: 24px;
-  margin-bottom: 12px;
-}
-
-.carousel-details p {
-  color: #575757;
-  text-transform: capitalize;
 }
 
 .carousel-button {
@@ -384,8 +397,8 @@ onUnmounted(() => {
   color: white;
   border: none;
   border-radius: 20px;
-  padding: 10px 10px;
-  font-size: 14px;
+  padding: 5px 10px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -438,7 +451,7 @@ onUnmounted(() => {
 .category-card {
   display: block;
   padding: 18px 12px;
-  background-color: rgba(181, 175, 175, 0.24);
+  background-color: #f5f0e5;
   border-radius: 30px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
   color: #333;
@@ -494,9 +507,19 @@ onUnmounted(() => {
     width: 30px;
     height: 30px;
   }
+  .cart-count {
+    top: 95px;
+    right:160px;
+  
+  }
 
   .categories {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .featured-badge {
+    padding: 5px 10px;
+    font-size: 12px;
   }
 
   .carousel {
@@ -504,7 +527,35 @@ onUnmounted(() => {
   }
 
   .carousel-content {
+    display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+  .carousel-image-wrapper {
+    width: 220px;
+    height: 220px;
+    margin: 0 auto;
+  }
+
+  .carousel-details {
+    width: 100%;
+    max-width: 280px;
+    min-height: 130px;
+    margin: 0 auto;
+    align-items: center;
+    text-align: center;
+  }
+
+  .carousel-details h2 {
+    min-height: 48px;
+    font-size: 20px;
+  }
+
+  .carousel-details p {
+    margin-bottom: 12px;
   }
 
   .carousel-button {
@@ -523,5 +574,25 @@ onUnmounted(() => {
   .carousel-button.next {
     right: 10px;
   }
+
+  .filters {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
 }
+@media (max-width: 375px) {
+  .cart-count {
+    right:135px;
+  }
+}
+
+@media (max-width: 320px) {
+  .cart-count {
+    top: 100px;
+    right:110px;
+  }
+}
+
 </style>

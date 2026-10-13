@@ -11,9 +11,11 @@ const cartStore = useCartStore()
     <div v-if="cartStore.items.length === 0" class="empty-cart">
       <h3 >Your cart is empty.</h3>
 
-      <NuxtLink to="/">
-        Continue Shopping
-      </NuxtLink>
+      <button class="continue-shopping-button">
+                <NuxtLink to="/">
+                Continue Shopping
+                </NuxtLink>
+      </button>
     </div>
 
     <div v-else class="cart-content">
@@ -34,14 +36,35 @@ const cartStore = useCartStore()
 
             <p>Price: ${{ item.product.price.toFixed(2) }}</p>
 
-            <p>Quantity: {{ item.quantity }}</p>
+            <div class="quantity-control">
+              <span>Quantity:</span>
+
+              <button
+                type="button"
+                @click="cartStore.decreaseQuantity(item.product.id)"
+                :disabled="item.quantity <= 1"
+                aria-label="Decrease quantity"
+              >
+                -
+              </button>
+
+              <span class="quantity">{{ item.quantity }}</span>
+
+              <button
+                type="button"
+                @click="cartStore.increaseQuantity(item.product.id)"
+                aria-label="Increase quantity"
+              >
+                +
+              </button>
+            </div>
 
             <p>
               Subtotal:
               ${{ (item.product.price * item.quantity).toFixed(2) }}
             </p>
 
-            <button
+            <button class="remove-button"
               type="button"
               @click="cartStore.removeFromCart(item.product.id)"
             >
@@ -67,8 +90,10 @@ const cartStore = useCartStore()
                 Continue Shopping
                 </NuxtLink>
             </button>
-        <button class="checkout-button" @click="cartStore.checkout()">
-          Checkout
+        <button class="checkout-button">
+          <NuxtLink to="/checkout">
+            Checkout
+          </NuxtLink>
         </button>
         </div>
       </aside>
@@ -83,7 +108,7 @@ const cartStore = useCartStore()
   padding: 20px;
 }
 
-.cart-page > h1 {
+.cart-page h1 {
   font-size: 40px;
   margin-bottom: 30px;
 }
@@ -143,7 +168,6 @@ const cartStore = useCartStore()
 }
 
 .cart-summary {
-
     padding: 25px;
     border-radius: 16px;
     background: #f5f0e5;
@@ -174,6 +198,15 @@ const cartStore = useCartStore()
   cursor: pointer;
 
 }
+.checkout-button  a {
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+} 
 .checkout-button {
   background: black;
   color: white;
@@ -192,4 +225,69 @@ const cartStore = useCartStore()
   margin-bottom: 15px;
 }
 
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.quantity-control button {
+  border: none;
+  border-radius: 20px;
+  background: #333;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.quantity-control button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.quantity {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 600;
+}
+@media (max-width: 425px) {
+  .cart-page h1{
+    text-align: center;
+  }
+  .cart-item {
+    flex-direction: column;
+  }
+  .remove-button {
+    margin-top: 10px;
+    width: 100%;
+  } 
+
+  .cart-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .checkout{
+    margin-top: 20px;
+    flex-direction: column;
+  }
+  .checkout-button {
+    width: 100%;
+  }
+  .checkout a {
+    font-size: 12px;
+  }
+
+  .continue-shopping-button {
+    width: 100%;
+  }
+  .continue-shopping-button a {
+    font-size: 12px;
+  }
+
+  
+
+}
 </style>
