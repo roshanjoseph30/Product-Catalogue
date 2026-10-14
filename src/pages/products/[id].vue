@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useCartStore } from '~/stores/cart'
 import cart from '~/assets/images/cart.png'
 
-const showCartNotification = ref(false)
 let notificationTimeout: ReturnType<typeof setTimeout> | undefined
 
+const showCartNotification = ref(false)
 const cartStore = useCartStore()
-
 const isCartOpen = ref(false)
 const productStore = useProductStore()
+const stockHydrated = ref(false)
 
 
 interface Product {
@@ -27,12 +27,7 @@ interface Product {
 }
 
 const route = useRoute()
-
-// Get the product ID from the URL
 const productId = computed(() => String(route.params.id))
-
-// Fetch the selected product
-
 
 const {
   data: product,
@@ -41,13 +36,9 @@ const {
 } = await useAsyncData(
   () => `product-${productId.value}`,
   async () => {
-    const fetchedProduct = await $fetch<Product>(
+    return await $fetch<Product>(
       `https://dummyjson.com/products/${productId.value}`
     )
-
-    fetchedProduct.stock = productStore.getStock(fetchedProduct)
-
-    return fetchedProduct
   },
   {
     watch: [productId]
@@ -61,7 +52,6 @@ const { data: relatedProducts } = await useAsyncData(
         const response = await $fetch<{ products: Product[] }>(
             `https://dummyjson.com/products/category/${product.value.category}`
         )
-
         return response.products
             .filter(item => item.id !== product.value!.id)
             .slice(0, 4)
@@ -71,16 +61,26 @@ const { data: relatedProducts } = await useAsyncData(
     }
 )
 
+onMounted(() => {
+  if (
+    product.value &&
+    productStore.stockById[product.value.id] === undefined
+  ) {
+    productStore.stockById[product.value.id] = product.value.stock
+  }
+    stockHydrated.value = true
+})
+
+const availableStock = computed(() => {
+  if (!product.value) return 0
+  if (!stockHydrated.value) return product.value.stock
+  return productStore.stockById[product.value.id] ?? product.value.stock
+})
+
 const addToCart = () => {
-  if (!product.value || product.value.stock <= 0) return
-
-  productStore.updateStock(product.value.id, -1)
-  product.value.stock--
-
+  if (!product.value || availableStock.value <= 0) return
   cartStore.addToCart(product.value)
-
   showCartNotification.value = true
-
   clearTimeout(notificationTimeout)
 
   notificationTimeout = setTimeout(() => {
@@ -91,9 +91,7 @@ const addToCart = () => {
 </script>
 
 <template>
-    <main class="product-detail-page">
-
-        <!-- Back to store -->
+    <main class="product-detail-page">      
         <NuxtLink to="/" class="back-link">
             &larr; Back to Store
         </NuxtLink>
@@ -104,10 +102,10 @@ const addToCart = () => {
                 class="cart-button"
                 aria-label="Open shopping cart"
                 :aria-expanded="isCartOpen"
+                aria-controls="product-cart-sidebar"
                 @click="isCartOpen = true"
             >
                 <img :src="cart" alt="">
-
                 <span
                 v-if="cartStore.totalItems > 0"
                 class="cart-count"
@@ -122,21 +120,17 @@ const addToCart = () => {
         @close="isCartOpen = false"
         />
       
-
-        <!-- Loading -->
         <p v-if="status === 'pending'" role="status">
             Loading product...
         </p>
 
-        <!-- Error -->
+   
         <p v-else-if="error" role="alert">
             Unable to load the product. Please try again.
         </p>
 
-        <!-- Product details -->
         <section v-else-if="product" class="product-detail">
 
-            <!-- Product image -->
             <div class="product-image">
                 <img
                     :src="product.thumbnail"
@@ -144,7 +138,6 @@ const addToCart = () => {
                 />
             </div>
 
-            <!-- Product information -->
             <div class="product-info">
 
                 <p class="category">
@@ -174,13 +167,13 @@ const addToCart = () => {
                 </p>
 
                 <p>
-                    Stock available: {{ product?.stock ?? 0 }}
+                    Stock available: {{ availableStock }}
                 </p>
 
                 <button
-                    type="button" @click="addToCart(product)"
+                    type="button" @click="addToCart"
                     class="add-to-cart"
-                    :disabled="product.stock <= 0"
+                    :disabled="availableStock <= 0"
                 >
                     Add to Cart
                 </button>
@@ -188,7 +181,6 @@ const addToCart = () => {
                     v-if="showCartNotification"
                     class="cart-notification"
                     role="status"
-                    aria-live="polite"
                     >
                     <span class="notification-icon">✓</span>
 
@@ -197,12 +189,8 @@ const addToCart = () => {
                         <p>{{ product?.title }}</p>
                     </div>
                 </div>
-
             </div>
-
         </section>
-
-        <!-- Related Products -->
         <section class="related-products">
             <h2>Related Products</h2>
 
@@ -223,7 +211,6 @@ const addToCart = () => {
                     </div>
                 </NuxtLink>
             </div>
-
             <p v-else>No related products found.</p>
         </section>
 
@@ -434,15 +421,12 @@ const addToCart = () => {
   top: 90px;
   right: 30px;
   z-index: 1000;
-
   display: flex;
   align-items: center;
   gap: 12px;
-
   width: 300px;
   padding: 16px;
   box-sizing: border-box;
-
   background-color: #ffffff;
   border: 1px solid #d4d4d4;
   border-radius: 8px;
@@ -491,5 +475,4 @@ const addToCart = () => {
         height: 180px;
     }
 }
-
 </style>

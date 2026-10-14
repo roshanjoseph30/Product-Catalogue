@@ -2,10 +2,10 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useCartStore } from '~/stores/cart'
 import { useDebounce } from '~/composables/useDebounce'
-
-const cartStore = useCartStore()
 import userLogo from '~/assets/images/user.png'
 import cart from '~/assets/images/cart.png'
+
+const cartStore = useCartStore()
 
 interface Product {
   id: number
@@ -54,14 +54,12 @@ const previousSlide = () => {
     featuredProducts.value.length
 }
 
-
 const startCarousel = () => {
   carouselInterval = setInterval(nextSlide, 3000)
 }
+
 const filteredProducts = computed(() => {
   let result = products.value
-
-  // Filter products by search text
   if (debouncedSearchQuery.value.trim()) {
     result = result.filter(product =>
       product.title
@@ -103,14 +101,16 @@ onUnmounted(() => {
       </a>
 
       <div class="user-cart">
-        <img :src="userLogo" alt="User" class="logo">
+        <NuxtLink to="/account" aria-label="My account">
+          <img :src="userLogo" alt="" class="logo">
+        </NuxtLink>
 
         <NuxtLink
           to="/cart"
           class="cart-button"
           aria-label="View shopping cart"
         >
-          <img :src="cart" alt="cartlogo" class="cart-logo">
+          <img :src="cart" alt="cart-logo" class="cart-logo">
           
           <span
                 v-if="cartStore.totalItems > 0"
@@ -152,9 +152,7 @@ onUnmounted(() => {
             :to="`/products/${featuredProducts[currentIndex].id}`"
             class="view-details-button"
             >
-            <button class="view-details-button">
               View Details
-            </button>
           </NuxtLink>
           </div>
         </template>
@@ -240,6 +238,8 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+
+
 
 .header {
   display: flex;
@@ -352,7 +352,9 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: flex-start;
 }
-
+.carousel-details a{
+  text-decoration: none;
+}
 .carousel-details h2 {
   font-size: 24px;
   margin: 0 0 12px;
@@ -392,6 +394,7 @@ onUnmounted(() => {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
   transition: background-color 0.3s ease;
 }
+
 .view-details-button {
   background: black;
   color: white;
@@ -488,7 +491,11 @@ onUnmounted(() => {
   text-decoration: none;
 }
 
-
+@media (max-width: 768px) {
+  .categories {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
 @media (max-width: 425px) {
   .header {
     flex-direction: column;

@@ -33,6 +33,10 @@ export const useProductStore = defineStore(
         )
 
         products.value = response.products.map(product => {
+          if (import.meta.server) {
+            return product
+          }
+        
           if (stockById.value[product.id] === undefined) {
             stockById.value[product.id] = product.stock
           }
@@ -62,6 +66,10 @@ export const useProductStore = defineStore(
     }
 
     const getStock = (product: Product) => {
+      if (import.meta.server) {
+        return product.stock
+      }
+    
       if (stockById.value[product.id] === undefined) {
         stockById.value[product.id] = product.stock
       }
@@ -103,6 +111,8 @@ export const useProductStore = defineStore(
     }
   },
   {
-    persist: true,
+    persist: {
+      pick: ['stockById'],
+    },
   }
 )

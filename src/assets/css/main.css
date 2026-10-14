@@ -2,3 +2,8 @@ body {
   background-color: #ffffff;
   margin: 40px;
 }
+
+:focus-visible {
+  outline: 3px solid #005fcc;
+  outline-offset: 3px;
+}

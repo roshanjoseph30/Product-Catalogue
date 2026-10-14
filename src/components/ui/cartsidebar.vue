@@ -10,6 +10,7 @@ const emit = defineEmits<{
 }>()
 
 const cartStore = useCartStore()
+const productStore = useProductStore()
 </script>
 
 <template>
@@ -21,13 +22,24 @@ const cartStore = useCartStore()
     ></div>
 
     <aside
+      id="product-cart-sidebar"
       class="cart-sidebar"
       :class="{ 'cart-sidebar-open': isOpen }"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cart-sidebar-title"
+      :aria-hidden="!isOpen"
+      :inert="!isOpen"
     >
       <div class="cart-header">
         <h2>Your Cart ({{ cartStore.totalItems }})</h2>
 
-        <button type="button" class="x-button" @click="emit('close')">
+        <button
+          type="button"
+          class="x-button"
+          aria-label="Close shopping cart"
+          @click="emit('close')"
+        >
           &times;
         </button>
       </div>
@@ -56,7 +68,7 @@ const cartStore = useCartStore()
               :disabled="item.quantity <= 1"
               aria-label="Decrease quantity"
             >
-              −
+              -
             </button>
 
             <span>{{ item.quantity }}</span>
@@ -64,13 +76,16 @@ const cartStore = useCartStore()
             <button
               type="button"
               @click="cartStore.increaseQuantity(item.product.id)"
+              :disabled="(productStore.stockById[item.product.id] ?? item.product.stock ?? 0) <= 0"
               aria-label="Increase quantity"
             >
               +
             </button>
           </div>
 
-          <button class="removebutton" @click="cartStore.removeFromCart(item.product.id)">
+          <button class="removebutton" 
+          :aria-label="`Remove ${item.product.title} from cart`"
+          @click="cartStore.removeFromCart(item.product.id)">
             Remove
           </button>
         </article>

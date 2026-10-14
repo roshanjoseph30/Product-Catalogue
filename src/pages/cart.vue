@@ -1,14 +1,27 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useCartStore } from '~/stores/cart'
+import { useProductStore } from '~/stores/product'
 
 const cartStore = useCartStore()
+const productStore = useProductStore()
+
+const isMounted = ref(false)
+
+onMounted(() => {
+  isMounted.value = true
+})
 </script>
 
 <template>
   <main class="cart-page">
     <h1>Shopping Cart</h1>
 
-    <div v-if="cartStore.items.length === 0" class="empty-cart">
+    <div v-if="!isMounted" class="cart-loading">
+      Loading cart...
+    </div>
+
+    <div v-else-if="cartStore.items.length === 0" class="empty-cart">
       <h3 >Your cart is empty.</h3>
 
       <button class="continue-shopping-button">
@@ -53,6 +66,7 @@ const cartStore = useCartStore()
               <button
                 type="button"
                 @click="cartStore.increaseQuantity(item.product.id)"
+                :disabled="(productStore.stockById[item.product.id] ?? item.product.stock ?? 0) <= 0"
                 aria-label="Increase quantity"
               >
                 +

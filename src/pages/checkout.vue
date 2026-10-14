@@ -3,12 +3,10 @@ import { ref, computed } from 'vue'
 import { useCartStore } from '~/stores/cart'
 
 const cartStore = useCartStore()
-
 const currentStep = ref(1)
 const orderPlaced = ref(false)
 const errorMessage = ref('')
 
-// Shipping details
 const shipping = ref({
   fullName: '',
   email: '',
@@ -18,10 +16,7 @@ const shipping = ref({
   postalCode: '',
 })
 
-// Delivery method
 const deliveryMethod = ref('standard')
-
-// Payment method
 const paymentMethod = ref('card')
 
 const steps = [
@@ -67,7 +62,6 @@ const validateShipping = () => {
   return true
 }
 
-// Move to the next step
 const nextStep = () => {
   errorMessage.value = ''
 
@@ -80,7 +74,6 @@ const nextStep = () => {
   }
 }
 
-// Return to the previous step
 const previousStep = () => {
   errorMessage.value = ''
 
@@ -89,7 +82,6 @@ const previousStep = () => {
   }
 }
 
-// Place the order
 const placeOrder = () => {
   if (cartStore.items.length === 0) {
     errorMessage.value = 'Your cart is empty.'
@@ -97,6 +89,7 @@ const placeOrder = () => {
   }
 
   orderPlaced.value = true
+  cartStore.clearCart()
 }
 </script>
 
@@ -104,7 +97,6 @@ const placeOrder = () => {
   <main class="checkout-page">
     <h1>Checkout</h1>
 
-    <!-- Order confirmation -->
     <section v-if="orderPlaced" class="order-success">
       <h2>Thank you for your order!</h2>
 
@@ -116,7 +108,6 @@ const placeOrder = () => {
     </section>
 
     <template v-else>
-      <!-- Progress indicator -->
       <nav class="step-indicator" aria-label="Checkout progress">
         <div
           v-for="(step, index) in steps"
@@ -136,9 +127,7 @@ const placeOrder = () => {
       </nav>
 
       <div class="checkout-layout">
-        <!-- Form section -->
         <section class="checkout-form">
-          <!-- STEP 1: SHIPPING -->
           <div v-if="currentStep === 1">
             <h2>Shipping Details</h2>
 
@@ -221,7 +210,6 @@ const placeOrder = () => {
             </form>
           </div>
 
-          <!-- STEP 2: DELIVERY -->
           <div v-else-if="currentStep === 2">
             <h2>Choose Delivery Method</h2>
 
@@ -274,7 +262,6 @@ const placeOrder = () => {
             </div>
           </div>
 
-          <!-- STEP 3: PAYMENT -->
           <div v-else-if="currentStep === 3">
             <h2>Payment Method</h2>
 
@@ -336,7 +323,6 @@ const placeOrder = () => {
             </div>
           </div>
 
-          <!-- STEP 4: REVIEW -->
           <div v-else-if="currentStep === 4">
             <h2>Review Your Order</h2>
 
@@ -425,8 +411,7 @@ const placeOrder = () => {
             {{ errorMessage }}
           </p>
         </section>
-
-        <!-- Order summary -->
+  
         <aside class="order-summary">
           <h2>Order Summary</h2>
 
