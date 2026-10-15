@@ -6,7 +6,7 @@ definePageMeta({
 })
 
 const authStore = useAuthStore()
-
+const { t } = useI18n()
 async function handleLogout() {
   authStore.logout()
   await navigateTo('/')
@@ -15,16 +15,16 @@ async function handleLogout() {
 
 <template>
   <main class="account-page">
-    <h1>My Account</h1>
-    <p>Welcome to your account!</p>
+    <h1>{{ t('myAccount') }}</h1>
+    <p>{{ t('welcomeToYourAccount') }}</p>
 
     <div class="account-actions">
       <button class="logout-button" @click="handleLogout">
-        Logout
+        {{ t('logout') }}
       </button>
 
       <NuxtLink to="/" class="home-link">
-        Go to Home
+        {{ t('goToHome') }}
       </NuxtLink>
     </div>
   </main>

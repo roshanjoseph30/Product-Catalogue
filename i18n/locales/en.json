@@ -81,6 +81,13 @@
     "postalCode": "Postal Code",
     "shipping": "Shipping",
     "payment": "Payment",
-    "review": "Review"
+    "review": "Review",
+    "welcomeBack": "Welcome back!",
+    "email": "Email",
+    "password": "Password",
+    "enterYourPassword": "Enter Your Password",
+    "myAccount": "My Account",
+    "welcomeToYourAccount": "Welcome to your account!",
+    "goToHome": "Go to Home"
     
   }

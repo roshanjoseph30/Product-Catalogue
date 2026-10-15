@@ -79,5 +79,12 @@
     "postalCode": "Postleitzahl",
     "shipping": "Versand",
     "payment": "Zahlung",
-    "review": "Überprüfen"
+    "review": "Überprüfen",
+    "welcomeBack": "Willkommen zurück!",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "enterYourPassword": "Geben Sie Ihre Passwort ein",
+    "myAccount": "Mein Konto",
+    "welcomeToYourAccount": "Willkommen in Ihrem Konto!",
+    "goToHome": "Zur Startseite"
 }

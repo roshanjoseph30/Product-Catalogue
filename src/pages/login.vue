@@ -6,6 +6,7 @@ definePageMeta({
   middleware: 'guest',
 })
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
@@ -25,28 +26,28 @@ async function handleLogin() {
 <template>
   <main class="login-page">
     <form class="login-form" @submit.prevent="handleLogin">
-      <h1>Login</h1>
-      <p>Welcome back! Please log in to your account.</p>
+      <h1>{{ t('login') }}</h1>
+      <p>{{ t('welcomeBack') }}</p>
 
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">{{ t('email') }}</label>
         <input
           id="email"
           v-model="email"
           type="email"
-          placeholder="Enter your email"
+          :placeholder="t('enterYourEmail')"
           autocomplete="email"
           required
         >
       </div>
 
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">{{ t('password') }}</label>
         <input
           id="password"
           v-model="password"
           type="password"
-          placeholder="Enter your password"
+          :placeholder="t('enterYourPassword')"
           autocomplete="current-password"
           required
         >
@@ -56,7 +57,7 @@ async function handleLogin() {
         {{ errorMessage }}
       </p>
 
-      <button type="submit">Login</button>
+      <button type="submit">{{ t('login') }}</button>
     </form>
   </main>
 </template>
