@@ -1,31 +1,57 @@
 <script setup lang="ts">
 const { locale, setLocale } = useI18n()
 
-async function changeLanguage(event: Event) {
-  const target = event.target as HTMLSelectElement
-  await setLocale(target.value)
+async function changeLanguage() {
+  await setLocale(locale.value === 'en' ? 'de' : 'en')
 }
 </script>
 
 <template>
-  <select
-    :value="locale"
-    @change="changeLanguage"
-    class="language-select"
-    aria-label="Select language"
-  >
-    <option value="en">English</option>
-    <option value="de">Deutsch</option>
-  </select>
+  <div class="btn-container">
+    <Transition name="slide-up">
+      <button
+        :key="locale"
+        @click="changeLanguage"
+      >
+        {{ locale === 'en' ? 'Deutsch' : 'English' }}
+      </button>
+    </Transition>
+  </div>
 </template>
 
 <style scoped>
-.language-select {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: white;
+.btn-container {
+  display: inline-block;
+  position: relative;
+  height: 1em;
+  width: 70px;
+}
+
+button {
   font-size: 14px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
   cursor: pointer;
+  border: 2px solid #000;
+
+  background-color: white;
+  border-radius: 10px;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
 }
 </style>
