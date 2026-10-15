@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useCartStore } from '~/stores/cart'
+const { t } = useI18n()
 
 defineProps<{
   isOpen: boolean
@@ -32,7 +33,7 @@ const productStore = useProductStore()
       :inert="!isOpen"
     >
       <div class="cart-header">
-        <h2>Your Cart ({{ cartStore.totalItems }})</h2>
+        <h2>{{ t('yourCart') }} ({{ cartStore.totalItems }})</h2>
 
         <button
           type="button"
@@ -45,7 +46,7 @@ const productStore = useProductStore()
       </div>
 
       <p v-if="cartStore.items.length === 0">
-        Your cart is empty.
+        {{ t('yourCartIsEmpty') }}
       </p>
 
       <div v-else class="cart-body">
@@ -58,7 +59,7 @@ const productStore = useProductStore()
           <h3>{{ item.product.title }}</h3>
 
           <p class="product-price">
-            Price: ${{ item.product.price.toFixed(2) }}
+            {{ t('price') }}: ${{ item.product.price.toFixed(2) }}
           </p>
 
           <div class="quantity-control">
@@ -86,12 +87,12 @@ const productStore = useProductStore()
           <button class="removebutton" 
           :aria-label="`Remove ${item.product.title} from cart`"
           @click="cartStore.removeFromCart(item.product.id)">
-            Remove
+            {{ t('remove') }}
           </button>
         </article>
       </div>
       <div v-if="cartStore.items.length > 0" class="cart-total">
-        <h3>Total Price:</h3>
+        <h3>{{ t('totalPrice') }}:</h3>
         <h3>${{ cartStore.totalPrice.toFixed(2) }}</h3>
       </div>
       <div class="checkout">
@@ -101,7 +102,7 @@ const productStore = useProductStore()
           class="checkout-button"
           @click="emit('close')"
         >
-          Checkout
+          {{ t('checkout') }}
         </NuxtLink>
       </div>
     </aside>

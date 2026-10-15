@@ -7,7 +7,7 @@ const cartStore = useCartStore()
 const productStore = useProductStore()
 
 const isMounted = ref(false)
-
+const { t } = useI18n()
 onMounted(() => {
   isMounted.value = true
 })
@@ -15,18 +15,18 @@ onMounted(() => {
 
 <template>
   <main class="cart-page">
-    <h1>Shopping Cart</h1>
+    <h1>{{ t('shoppingCart') }}</h1>
 
     <div v-if="!isMounted" class="cart-loading">
-      Loading cart...
+      {{ t('loadingCart') }}
     </div>
 
     <div v-else-if="cartStore.items.length === 0" class="empty-cart">
-      <h3 >Your cart is empty.</h3>
+      <h3 >{{ t('yourCartIsEmpty') }}</h3>
 
       <button class="continue-shopping-button">
                 <NuxtLink to="/">
-                Continue Shopping
+                {{ t('continueShopping') }}
                 </NuxtLink>
       </button>
     </div>
@@ -47,10 +47,10 @@ onMounted(() => {
           <div class="product-details">
             <h2>{{ item.product.title }}</h2>
 
-            <p>Price: ${{ item.product.price.toFixed(2) }}</p>
+            <p>{{ t('price') }}: ${{ item.product.price.toFixed(2) }}</p>
 
             <div class="quantity-control">
-              <span>Quantity:</span>
+              <span>{{ t('quantity') }}:</span>
 
               <button
                 type="button"
@@ -74,7 +74,7 @@ onMounted(() => {
             </div>
 
             <p>
-              Subtotal:
+              {{ t('subtotal') }}:
               ${{ (item.product.price * item.quantity).toFixed(2) }}
             </p>
 
@@ -82,31 +82,31 @@ onMounted(() => {
               type="button"
               @click="cartStore.removeFromCart(item.product.id)"
             >
-              Remove
+              {{ t('remove') }}
             </button>
           </div>
         </article>
       </section>
 
       <aside class="cart-summary">
-        <h2>Order Summary</h2>
+        <h2>{{ t('orderSummary') }}</h2>
 
         <p>
-          Total items: {{ cartStore.totalItems }}
+          {{ t('totalItems') }}: {{ cartStore.totalItems }}
         </p>
 
         <p>
-          Total price: ${{ cartStore.totalPrice.toFixed(2) }}
+          {{ t('totalPrice') }}: ${{ cartStore.totalPrice.toFixed(2) }}
         </p>
         <div class="checkout">
             <button class="continue-shopping-button">
                 <NuxtLink to="/">
-                Continue Shopping
+                {{ t('continueShopping') }}
                 </NuxtLink>
             </button>
         <button class="checkout-button">
           <NuxtLink to="/checkout">
-            Checkout
+            {{ t('checkout') }}
           </NuxtLink>
         </button>
         </div>

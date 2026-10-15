@@ -11,6 +11,7 @@ const isCartOpen = ref(false)
 const productStore = useProductStore()
 const stockHydrated = ref(false)
 
+const { t } = useI18n()
 
 interface Product {
     id: number
@@ -93,10 +94,11 @@ const addToCart = () => {
 <template>
     <main class="product-detail-page">      
         <NuxtLink to="/" class="back-link">
-            &larr; Back to Store
+            &larr; {{ t('backToStore') }}
         </NuxtLink>
 
         <div class="cart">
+        <Languageselector />
             <button
                 type="button"
                 class="cart-button"
@@ -121,7 +123,7 @@ const addToCart = () => {
         />
       
         <p v-if="status === 'pending'" role="status">
-            Loading product...
+            {{ t('loadingProduct') }}
         </p>
 
    
@@ -147,7 +149,7 @@ const addToCart = () => {
                 <h1>{{ product.title }}</h1>
 
                 <p class="brand" v-if="product.brand">
-                    Brand: {{ product.brand }}
+                    {{ t('brand') }}: {{ product.brand }}
                 </p>
 
                 <p class="rating">
@@ -167,7 +169,7 @@ const addToCart = () => {
                 </p>
 
                 <p>
-                    Stock available: {{ availableStock }}
+                    {{ t('stockAvailable') }}: {{ availableStock }}
                 </p>
 
                 <button
@@ -175,7 +177,7 @@ const addToCart = () => {
                     class="add-to-cart"
                     :disabled="availableStock <= 0"
                 >
-                    Add to Cart
+                    {{ t('addToCart') }}
                 </button>
                 <div
                     v-if="showCartNotification"
@@ -185,14 +187,14 @@ const addToCart = () => {
                     <span class="notification-icon">✓</span>
 
                     <div class="notification-message">
-                        <strong>Added to cart!</strong>
+                        <strong>{{ t('addedToCart') }}</strong>
                         <p>{{ product?.title }}</p>
                     </div>
                 </div>
             </div>
         </section>
         <section class="related-products">
-            <h2>Related Products</h2>
+            <h2>{{ t('relatedProducts') }}</h2>
 
             <div v-if="relatedProducts?.length" class="related-grid">
                 <NuxtLink
@@ -211,7 +213,7 @@ const addToCart = () => {
                     </div>
                 </NuxtLink>
             </div>
-            <p v-else>No related products found.</p>
+            <p v-else>{{ t('noRelatedProductsFound') }}</p>
         </section>
 
     </main>
@@ -234,6 +236,10 @@ const addToCart = () => {
 }
 
 .cart {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
     position: absolute;
     top: 60px;
     right: 80px;

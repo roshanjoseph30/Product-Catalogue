@@ -6,6 +6,7 @@ const cartStore = useCartStore()
 const currentStep = ref(1)
 const orderPlaced = ref(false)
 const errorMessage = ref('')
+const { t } = useI18n()
 
 const shipping = ref({
   fullName: '',
@@ -20,10 +21,10 @@ const deliveryMethod = ref('standard')
 const paymentMethod = ref('card')
 
 const steps = [
-  'Shipping',
-  'Delivery',
-  'Payment',
-  'Review',
+  t('shipping'),
+  t('delivery'),
+  t('payment'),
+  t('review'),
 ]
 
 const totalItems = computed(() => cartStore.totalItems)
@@ -95,19 +96,20 @@ const placeOrder = () => {
 
 <template>
   <main class="checkout-page">
-    <h1>Checkout</h1>
+    <h1>{{ t('checkout') }}</h1>
 
     <section v-if="orderPlaced" class="order-success">
-      <h2>Thank you for your order!</h2>
+      <h2>{{ t('thankYouForYourOrder') }}</h2>
 
-      <p>Your order has been submitted successfully.</p>
+      <p>{{ t('yourOrderHasBeenSubmittedSuccessfully') }}</p>
 
       <NuxtLink to="/" class="primary-button">
-        Continue Shopping
+        {{ t('continueShopping') }}
       </NuxtLink>
     </section>
 
     <template v-else>
+  
       <nav class="step-indicator" aria-label="Checkout progress">
         <div
           v-for="(step, index) in steps"
@@ -129,10 +131,10 @@ const placeOrder = () => {
       <div class="checkout-layout">
         <section class="checkout-form">
           <div v-if="currentStep === 1">
-            <h2>Shipping Details</h2>
+            <h2>{{ t('shippingDetails') }}</h2>
 
             <form @submit.prevent="nextStep">
-              <label for="fullName">Full Name</label>
+              <label for="fullName">{{ t('fullName') }}</label>
 
               <input
                 id="fullName"
@@ -140,10 +142,10 @@ const placeOrder = () => {
                 type="text"
                 autocomplete="name"
                 required
-                placeholder="Enter your full name"
+                :placeholder="t('enterYourFullName')"
               >
 
-              <label for="email">Email Address</label>
+              <label for="email">{{ t('emailAddress') }}</label>
 
               <input
                 id="email"
@@ -151,10 +153,10 @@ const placeOrder = () => {
                 type="email"
                 autocomplete="email"
                 required
-                placeholder="Enter your email"
+                :placeholder="t('enterYourEmail')"
               >
 
-              <label for="phone">Phone Number</label>
+              <label for="phone">{{ t('phoneNumber') }}</label>
 
               <input
                 id="phone"
@@ -162,10 +164,10 @@ const placeOrder = () => {
                 type="tel"
                 autocomplete="tel"
                 required
-                placeholder="Enter your phone number"
+                :placeholder="t('enterYourPhoneNumber')"
               >
 
-              <label for="address">Street Address</label>
+              <label for="address">{{ t('streetAddress') }}</label>
 
               <input
                 id="address"
@@ -173,12 +175,12 @@ const placeOrder = () => {
                 type="text"
                 autocomplete="street-address"
                 required
-                placeholder="Enter your address"
+                :placeholder="t('enterYourAddress')"
               >
 
               <div class="form-row">
                 <div>
-                  <label for="city">City</label>
+                  <label for="city">{{ t('city') }}</label>
 
                   <input
                     id="city"
@@ -186,12 +188,12 @@ const placeOrder = () => {
                     type="text"
                     autocomplete="address-level2"
                     required
-                    placeholder="City"
+                    :placeholder="t('enterYourCity')"
                   >
                 </div>
 
                 <div>
-                  <label for="postalCode">Postal Code</label>
+                  <label for="postalCode">{{ t('postalCode') }}</label>
 
                   <input
                     id="postalCode"
@@ -199,19 +201,19 @@ const placeOrder = () => {
                     type="text"
                     autocomplete="postal-code"
                     required
-                    placeholder="Postal code"
+                    :placeholder="t('enterYourPostalCode')"
                   >
                 </div>
               </div>
 
               <button type="submit" class="primary-button">
-                Continue to Delivery
+                {{ t('continueToDelivery') }}
               </button>
             </form>
           </div>
 
           <div v-else-if="currentStep === 2">
-            <h2>Choose Delivery Method</h2>
+            <h2>{{ t('chooseDeliveryMethod') }}</h2>
 
             <label class="option-card">
               <input
@@ -221,8 +223,8 @@ const placeOrder = () => {
               >
 
               <span>
-                <strong>Standard Delivery</strong>
-                <small>Free delivery</small>
+                <strong>{{ t('standardDelivery') }}</strong>
+                <small>{{ t('freeDelivery') }}</small>
               </span>
 
               <strong>$0.00</strong>
@@ -236,8 +238,8 @@ const placeOrder = () => {
               >
 
               <span>
-                <strong>Express Delivery</strong>
-                <small>Faster delivery</small>
+                <strong>{{ t('expressDelivery') }}</strong>
+                <small>{{ t('fasterDelivery') }}</small>
               </span>
 
               <strong>$15.00</strong>
@@ -249,7 +251,7 @@ const placeOrder = () => {
                 class="secondary-button"
                 @click="previousStep"
               >
-                Back
+                {{ t('back') }}
               </button>
 
               <button
@@ -257,13 +259,13 @@ const placeOrder = () => {
                 class="primary-button"
                 @click="nextStep"
               >
-                Continue to Payment
+                {{ t('continueToPayment') }}
               </button>
             </div>
           </div>
 
           <div v-else-if="currentStep === 3">
-            <h2>Payment Method</h2>
+            <h2>{{ t('paymentMethod') }}</h2>
 
             <label class="option-card">
               <input
@@ -273,8 +275,8 @@ const placeOrder = () => {
               >
 
               <span>
-                <strong>Credit / Debit Card</strong>
-                <small>Pay using your card</small>
+                <strong>{{ t('creditDebitCard') }}</strong>
+                <small>{{ t('payUsingYourCard') }}</small>
               </span>
             </label>
 
@@ -286,8 +288,8 @@ const placeOrder = () => {
               >
 
               <span>
-                <strong>UPI</strong>
-                <small>Pay using a UPI application</small>
+                <strong>{{ t('UPI') }}</strong>
+                <small>{{ t('payUsingAUPIApplication') }}</small>
               </span>
             </label>
 
@@ -299,8 +301,8 @@ const placeOrder = () => {
               >
 
               <span>
-                <strong>Cash on Delivery</strong>
-                <small>Pay when your order arrives</small>
+                <strong>{{ t('cashOnDelivery') }}</strong>
+                <small>{{ t('payWhenYourOrderArrives') }}</small>
               </span>
             </label>
 
@@ -310,7 +312,7 @@ const placeOrder = () => {
                 class="secondary-button"
                 @click="previousStep"
               >
-                Back
+                {{ t('back') }}
               </button>
 
               <button
@@ -318,16 +320,16 @@ const placeOrder = () => {
                 class="primary-button"
                 @click="nextStep"
               >
-                Review Order
+                {{ t('reviewOrder') }}
               </button>
             </div>
           </div>
 
           <div v-else-if="currentStep === 4">
-            <h2>Review Your Order</h2>
+            <h2>{{ t('reviewYourOrder') }}</h2>
 
             <div class="review-section">
-              <h3>Shipping Information</h3>
+              <h3>{{ t('shippingInformation') }}</h3>
 
               <p>{{ shipping.fullName }}</p>
               <p>{{ shipping.email }}</p>
@@ -344,17 +346,17 @@ const placeOrder = () => {
                 class="edit-button"
                 @click="currentStep = 1"
               >
-                Edit
+                {{ t('edit') }}
               </button>
             </div>
 
             <div class="review-section">
-              <h3>Delivery Method</h3>
+              <h3>{{ t('deliveryMethod') }}</h3>
 
               <p>
                 {{ deliveryMethod === 'express'
-                  ? 'Express Delivery'
-                  : 'Standard Delivery' }}
+                  ? t('expressDelivery')
+                  : t('standardDelivery') }}
               </p>
 
               <button
@@ -362,20 +364,20 @@ const placeOrder = () => {
                 class="edit-button"
                 @click="currentStep = 2"
               >
-                Edit
+                {{ t('edit') }}
               </button>
             </div>
 
             <div class="review-section">
-              <h3>Payment Method</h3>
+              <h3>{{ t('paymentMethod') }}</h3>
 
               <p>
                 {{
                   paymentMethod === 'card'
-                    ? 'Credit / Debit Card'
+                    ? t('creditDebitCard')
                     : paymentMethod === 'upi'
-                      ? 'UPI'
-                      : 'Cash on Delivery'
+                      ? t('UPI')
+                      : t('cashOnDelivery')
                 }}
               </p>
 
@@ -384,7 +386,7 @@ const placeOrder = () => {
                 class="edit-button"
                 @click="currentStep = 3"
               >
-                Edit
+                {{ t('edit') }}
               </button>
             </div>
 
@@ -394,7 +396,7 @@ const placeOrder = () => {
                 class="secondary-button"
                 @click="previousStep"
               >
-                Back
+                {{ t('back') }}
               </button>
 
               <button
@@ -402,7 +404,7 @@ const placeOrder = () => {
                 class="primary-button"
                 @click="placeOrder"
               >
-                Place Order
+                {{ t('placeOrder') }}
               </button>
             </div>
           </div>
@@ -413,7 +415,7 @@ const placeOrder = () => {
         </section>
   
         <aside class="order-summary">
-          <h2>Order Summary</h2>
+          <h2>{{ t('orderSummary') }}</h2>
 
           <div
             v-for="item in cartStore.items"
@@ -428,7 +430,7 @@ const placeOrder = () => {
             <div class="summary-details">
               <h3>{{ item.product.title }}</h3>
 
-              <p>Quantity: {{ item.quantity }}</p>
+              <p>{{ t('quantity') }}: {{ item.quantity }}</p>
 
               <p>
                 ${{ (item.product.price * item.quantity).toFixed(2) }}
@@ -439,24 +441,24 @@ const placeOrder = () => {
           <hr>
 
           <p>
-            Total items:
+            {{ t('totalItems') }}:
             <strong>{{ totalItems }}</strong>
           </p>
 
           <p>
-            Subtotal:
+            {{ t('subtotal') }}:
             <strong>${{ totalPrice.toFixed(2) }}</strong>
           </p>
 
           <p>
-            Delivery:
+            {{ t('delivery') }}:
             <strong>${{ deliveryCost.toFixed(2) }}</strong>
           </p>
 
           <hr>
 
           <p class="grand-total">
-            Total:
+            {{ t('total') }}:
             <strong>${{ grandTotal.toFixed(2) }}</strong>
           </p>
         </aside>

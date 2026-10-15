@@ -4,6 +4,7 @@ import { useCartStore } from '~/stores/cart'
 import { useDebounce } from '~/composables/useDebounce'
 import userLogo from '~/assets/images/user.png'
 import cart from '~/assets/images/cart.png'
+const { t } = useI18n()
 
 const cartStore = useCartStore()
 
@@ -39,6 +40,7 @@ const featuredProducts = computed(() => {
   return products.value.slice(95, 100)
 })
 
+
 const nextSlide = () => {
   if (!featuredProducts.value.length) return
 
@@ -70,6 +72,7 @@ const filteredProducts = computed(() => {
 
   return result
 })
+
 watch(selectedCategory, (newCategory) => {
   if (newCategory) {
     navigateTo(`/categories/${newCategory}`)
@@ -97,10 +100,12 @@ onUnmounted(() => {
     
     <header class="header">
       <a href="/">
-        <h1>Store</h1>
+        <h1>{{ t('storeName') }}</h1>
       </a>
 
       <div class="user-cart">
+        <Languageselector />
+
         <NuxtLink to="/account" aria-label="My account">
           <img :src="userLogo" alt="" class="logo">
         </NuxtLink>
@@ -134,7 +139,7 @@ onUnmounted(() => {
       </button>
 
       <div class="carousel-content">
-        <span class="featured-badge">Featured</span>
+        <span class="featured-badge">{{ t('featured') }}</span>
         <template v-if="featuredProducts.length">
           <div class="carousel-image-wrapper">
             <img
@@ -152,12 +157,12 @@ onUnmounted(() => {
             :to="`/products/${featuredProducts[currentIndex].id}`"
             class="view-details-button"
             >
-              View Details
+              {{ t('viewDetails') }}
           </NuxtLink>
           </div>
         </template>
 
-        <p v-else>Loading products...</p>
+        <p v-else>{{ t('loading') }}</p>
       </div>
 
       <button
@@ -175,8 +180,8 @@ onUnmounted(() => {
         <input
           v-model="searchQuery"
           type="search"
-          placeholder="Search products"
-          aria-label="Search products"
+          :placeholder="t('search')"
+          :aria-label="t('search')"
         >
       </label>
 
@@ -186,7 +191,7 @@ onUnmounted(() => {
           class="category-select"
           aria-label="Filter by category"
         >
-          <option value="">All Categories</option>
+          <option value="">{{ t('allCategories') }}</option>
 
           <option
             v-for="category in categories"
@@ -199,7 +204,7 @@ onUnmounted(() => {
       </label>
     </section>
     <section v-if="searchQuery.trim()" class="search-results">
-      <h2>Search Results</h2>
+      <h2>{{ t('searchResults') }}</h2>
 
       <div v-if="filteredProducts.length" class="products">
         <NuxtLink
@@ -214,13 +219,13 @@ onUnmounted(() => {
         </NuxtLink>
       </div>
 
-      <p v-else>No products found.</p>
+      <p v-else>{{ t('noProductsFound') }}</p>
     </section>
 
     
     <section class="category-section">
       <div class="header">
-        <h2>Categories</h2>
+        <h2>{{ t('categories') }}</h2>
       </div>
 
       <div class="categories">
@@ -277,6 +282,14 @@ onUnmounted(() => {
   gap: 30px;
   margin-right: 20px;
   padding: 20px;
+}
+.language-select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 .cart-button {

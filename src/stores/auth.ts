@@ -1,21 +1,30 @@
 import { defineStore } from 'pinia'
 
 export const useAuthStore = defineStore('auth', () => {
- 
   const isLoggedIn = useCookie<boolean>('demo-auth-logged-in', {
-    default: () => false,
+    default: () => false
   })
 
-  function login(email: string, password: string): boolean {
-    if (
-      email === 'rj@gmail.com' &&
-      password === '123'
-    ) {
-      isLoggedIn.value = true
-      return true
-    }
+  async function login(
+    email: string,
+    password: string
+  ): Promise<boolean> {
+    try {
+      await $fetch('/api/login', {
+        method: 'POST',
+        body: {
+          email,
+          password
+        }
+      })
 
-    return false
+      isLoggedIn.value = true
+
+      return true
+    } catch (error) {
+      console.error('Login failed:', error)
+      return false
+    }
   }
 
   function logout() {
@@ -25,6 +34,6 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     isLoggedIn,
     login,
-    logout,
+    logout
   }
 })

@@ -4,9 +4,16 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules:[
     '@pinia/nuxt',
+    '@nuxtjs/i18n',
   ],
    srcDir: 'src/',
+  
    css: ['~/assets/css/main.css'],
+
+  runtimeConfig: {
+    authEmail: '',
+    authPassword: '',
+  },
 
    app: {
     head: {
@@ -19,6 +26,27 @@ export default defineNuxtConfig({
         },
       ],
     },
+  },
+
+  i18n: {
+    defaultLocale: 'en',
+    strategy: 'no_prefix',
+    langDir: 'locales',
+  
+    locales: [
+      {
+        code: 'en',
+        language: 'en-US',
+        name: 'English',
+        file: 'en.json',
+      },
+      {
+        code: 'de',
+        language: 'de-DE',
+        name: 'Deutsch',
+        file: 'de.json',
+      },
+    ],
   },
    
 })

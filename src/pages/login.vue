@@ -11,18 +11,13 @@ const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 
-const handleLogin = async () => {
-  errorMessage.value = ''
+async function handleLogin() {
+  const success = await authStore.login(email.value, password.value)
 
-  if (!email.value || !password.value) {
-    errorMessage.value = 'Please enter your email and password.'
-    return
-  }
-
-  if (authStore.login(email.value, password.value)) {
+  if (success) {
     await navigateTo('/account')
   } else {
-    errorMessage.value = 'Invalid email or password.'
+    errorMessage.value = 'Invalid email or password'
   }
 }
 </script>

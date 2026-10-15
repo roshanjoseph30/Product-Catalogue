@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+const { t } = useI18n()
+
 interface Product {
   id: number
   title: string
@@ -46,27 +48,31 @@ const categoryName = computed(() => {
 
 <template>
   <main class="category-page">
-    <NuxtLink to="/" class="back-link">
-      &larr; Back to Store
-    </NuxtLink>
+    
+    <div class="language-selector">
+      <NuxtLink to="/" class="back-link">
+        &larr; {{ t('backToStore') }}
+      </NuxtLink>
+      <Languageselector />
+    </div>
 
     <header class="page-header">
       <h1>{{ categoryName }}</h1>
     </header>
 
     <p v-if="status === 'pending'" role="status">
-      Loading products...
+      {{ t('loadingProducts') }}
     </p>
 
     <p v-else-if="error" role="alert">
-      Failed to load products. Please try again.
+      {{ t('failedToLoadProducts') }}
     </p>
 
     <p
       v-else-if="!productResponse?.products.length"
       class="empty-message"
     >
-      No products found in this category.
+      {{ t('noProductsFoundInCategory') }}
     </p>
 
     <section v-else class="product-grid">
@@ -107,7 +113,14 @@ const categoryName = computed(() => {
     color: #333;
     text-decoration: none;
 }
-
+.language-selector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  margin-right: 20px;
+  padding: 20px;
+}
 .back-link:hover {
     text-decoration: underline;
 }
